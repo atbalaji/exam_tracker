@@ -1,0 +1,25 @@
+<h2>New Mock Attempt</h2>
+
+<%= form_with model: @mock_attempt do |f| %>
+  <div>
+    <%= f.label :exam_id %>
+    <%= f.collection_select :exam_id, @exams, :id, :name %>
+  </div>
+
+  <div>
+    <%= f.label :attempted_on %>
+    <%= f.date_field :attempted_on %>
+  </div>
+
+  <div>
+    <%= f.label :source %>
+    <%= f.text_field :source %>
+  </div>
+
+  <div>
+    <%= f.label :notes %>
+    <%= f.text_area :notes %>
+  </div>
+
+  <%= f.submit "Create Mock" %>
+<% end %>

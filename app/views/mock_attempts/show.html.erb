@@ -1,0 +1,107 @@
+<h2>Mock Details</h2>
+
+<p>
+  <strong>Exam:</strong> <%= @mock_attempt.exam.name %><br>
+  <strong>Date:</strong> <%= @mock_attempt.attempted_on %>
+</p>
+
+<h3>Saved Section Results</h3>
+
+<% if @section_results.any? %>
+  <table>
+    <tr>
+      <th>Section</th>
+      <th>Attempted</th>
+      <th>Correct</th>
+      <th>Accuracy</th>
+    </tr>
+
+    <% @section_results.each do |r| %>
+      <tr>
+        <td><%= r.section.name %></td>
+        <td><%= r.attempted %></td>
+        <td><%= r.correct %></td>
+        <td>
+          <%= number_to_percentage(
+                (r.correct.to_f / r.attempted) * 100,
+                precision: 1
+              ) %>
+        </td>
+      </tr>
+    <% end %>
+  </table>
+
+  <h3>Overall Performance</h3>
+
+  <ul>
+    <li>Total Attempted: <%= @mock_attempt.total_attempted %></li>
+    <li>Total Correct: <%= @mock_attempt.total_correct %></li>
+    <li>Accuracy:
+      <%= number_to_percentage(@mock_attempt.accuracy, precision: 1) %>
+    </li>
+  </ul>
+
+<% else %>
+  <p>No section results saved yet.</p>
+<% end %>
+
+<h3>Accuracy Trend</h3>
+
+<ul>
+  <% @accuracy_trend.each do |point| %>
+    <li>
+      <%= point[:date] %> :
+      <%= number_to_percentage(point[:accuracy], precision: 1) %>
+    </li>
+  <% end %>
+</ul>
+
+<h3>Section-wise Trend</h3>
+
+<% @section_trends.each do |section, points| %>
+  <h4><%= section %></h4>
+  <ul>
+    <% points.each do |p| %>
+      <li>
+        <%= p[:date] %> :
+        <%= number_to_percentage(p[:accuracy], precision: 1) %>
+      </li>
+    <% end %>
+  </ul>
+<% end %>
+
+<h3>Weak Sections (Focus Area)</h3>
+
+<% if @weak_sections.any? %>
+  <ul>
+    <% @weak_sections.each do |ws| %>
+      <li>
+        <strong><%= ws[:section] %></strong> –
+        <%= number_to_percentage(ws[:average_accuracy], precision: 1) %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>No weak sections identified yet.</p>
+<% end %>
+
+<h3>Section Scores</h3>
+
+<%= form_with url: mock_section_results_path do %>
+  <% @sections.each do |section| %>
+    <fieldset>
+      <legend><%= section.name %></legend>
+
+      <%= hidden_field_tag "results[][section_id]", section.id %>
+      <%= hidden_field_tag "results[][mock_attempt_id]", @mock_attempt.id %>
+
+      Attempted:
+      <%= number_field_tag "results[][attempted]", @section_results_by_section_id[section.id]&.attempted %>
+
+      Correct:
+      <%= number_field_tag "results[][correct]", @section_results_by_section_id[section.id]&.correct %>
+    </fieldset>
+  <% end %>
+
+  <%= submit_tag "Save Section Results" %>
+<% end %>

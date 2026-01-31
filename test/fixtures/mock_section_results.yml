@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  mock_attempt: one
+  section: one
+  attempted: 1
+  correct: 1
+  time_spent_minutes: 1
+
+two:
+  mock_attempt: two
+  section: two
+  attempted: 1
+  correct: 1
+  time_spent_minutes: 1

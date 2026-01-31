@@ -1,0 +1,2 @@
+module MockSectionResultsHelper
+end

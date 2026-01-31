@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  quiz_attempt: one
+  question: one
+  selected_option: MyString
+  is_correct: false
+  time_spent_seconds: 1
+
+two:
+  quiz_attempt: two
+  question: two
+  selected_option: MyString
+  is_correct: false
+  time_spent_seconds: 1

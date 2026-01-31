@@ -1,0 +1,2 @@
+module MockAttemptsHelper
+end

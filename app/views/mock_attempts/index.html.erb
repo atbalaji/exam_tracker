@@ -1,0 +1,19 @@
+<h2>Mock Attempts</h2>
+
+<%= link_to "Add Mock", new_mock_attempt_path %>
+
+<table>
+  <tr>
+    <th>Date</th>
+    <th>Exam</th>
+    <th>Source</th>
+  </tr>
+
+  <% @mock_attempts.each do |m| %>
+    <tr>
+      <td><%= m.attempted_on %></td>
+      <td><%= m.exam.name %></td>
+      <td><%= link_to "View", mock_attempt_path(m) %></td>
+    </tr>
+  <% end %>
+</table>

@@ -1,0 +1,11 @@
+<h3>Login Form</h3>
+
+<%= form_with url: login_path do %>
+  Username:
+  <%= text_field_tag "email" %>
+
+  Password:
+  <%= password_field_tag "password" %>
+
+  <%= submit_tag "Login" %>
+<% end %>

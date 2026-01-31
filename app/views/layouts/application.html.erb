@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ExamTracker</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag "application" %>
+    <%# <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+    <% if current_user %>
+      <nav class="top-nav">
+        <span class="app-name">ExamTracker</span>
+        <%= button_to "Logout", logout_path, method: :delete, class: "logout-btn" %>
+      </nav>
+    <% end %>
+
+    <% flash.each do |key, message| %>
+      <div class="flash <%= key %>"><%= message %></div>
+    <% end %>
+
+    <%= yield %>
+  </body>
+</html>
