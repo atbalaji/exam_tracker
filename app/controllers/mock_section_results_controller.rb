@@ -1,6 +1,8 @@
 class MockSectionResultsController < ApplicationController
   def create
     params[:results].each do |result|
+      next if result[:total_questions].blank? && result[:attempted].blank? && result[:correct].blank?
+
       mock_section_result = MockSectionResult.find_or_initialize_by(
         mock_attempt_id: result[:mock_attempt_id],
         section_id: result[:section_id],

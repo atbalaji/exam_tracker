@@ -1,6 +1,7 @@
 class Exam < ApplicationRecord
 
   validates :name, presence: true, uniqueness: true
+  validates :marks_per_correct, :negative_mark, presence: true, numericality: { greater_than_or_equal_to: 0 }
 
   has_many :sections
   has_many :mock_attempts

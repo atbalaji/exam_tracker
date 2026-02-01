@@ -15,6 +15,10 @@ class MockAttempt < ApplicationRecord
     mock_section_results.sum(:correct)
   end
 
+  def total_score
+    mock_section_results.sum(&:score)
+  end
+
   def accuracy
     return 0 if total_attempted.zero?
 

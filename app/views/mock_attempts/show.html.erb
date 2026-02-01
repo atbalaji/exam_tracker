@@ -40,6 +40,15 @@
       <%= number_to_percentage(@mock_attempt.accuracy, precision: 1) %>
     </li>
   </ul>
+  
+  <h3>Total Score: <%= @mock_attempt.total_score %></h3>
+
+  <% @mock_attempt.mock_section_results.each do |r| %>
+    <p>
+      <%= r.section.name %> :
+      <%= r.score %>
+    </p>
+  <% end %>
 
 <% else %>
   <p>No section results saved yet.</p>
@@ -94,6 +103,9 @@
 
       <%= hidden_field_tag "results[][section_id]", section.id %>
       <%= hidden_field_tag "results[][mock_attempt_id]", @mock_attempt.id %>
+
+      Total questions:
+      <%= number_field_tag "results[][total_questions]", sr&.total_questions %>
 
       Attempted:
       <%= number_field_tag "results[][attempted]", @section_results_by_section_id[section.id]&.attempted %>
