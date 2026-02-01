@@ -1,0 +1,28 @@
+AllCops:
+  TargetRubyVersion: 3.3
+  NewCops: enable
+  Exclude:
+    - 'db/schema.rb'       # skip auto-formatting schema
+    - 'bin/*'              # skip executables
+    - 'node_modules/**/*'  # skip JS dependencies
+    - 'vendor/**/*'        # skip vendor files
+    - 'tmp/**/*'           # skip temp files
+
+# Layout cops for formatting
+Layout/LineLength:
+  Max: 120
+
+Layout/IndentationWidth:
+  Width: 2   # 2-space indentation
+
+Layout/SpaceAroundOperators:
+  Enabled: true
+
+Layout/EmptyLines:
+  Enabled: true
+
+Layout/TrailingWhitespace:
+  Enabled: true
+
+Layout/IndentationStyle:
+  Enabled: true
