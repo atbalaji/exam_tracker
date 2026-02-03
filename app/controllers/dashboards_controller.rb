@@ -8,9 +8,9 @@ class DashboardsController < ApplicationController
     @total_mocks = @exam_mocks.size
 
     @weighted_average_accuracy = weighted_average_accuracy(@exam_mocks)
-    @average_score = @total_mocks.zero? ? 0 : weighted_average_score(@exam_mocks, @primary_exam)
-    @weak_sections = []
-    @skipped_sections = []
+    @weighted_average_score = @total_mocks.zero? ? 0 : weighted_average_score(@exam_mocks, @primary_exam)
+    @weak_sections = current_user.weak_sections_for(@primary_exam)
+    @skipped_sections = current_user.skipped_sections_for(@primary_exam)
     @exams = Exam.all
   end
 

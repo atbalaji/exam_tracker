@@ -1,95 +1,110 @@
-<h1 class="text-2xl font-bold mb-4">Dashboard</h1>
+<div class="max-w-7xl mx-auto px-4 py-6 space-y-8">
 
-<!-- Exam Selector -->
-<div class="mb-6">
-  <label for="exam_filter" class="font-semibold">Filter by Exam:</label>
-  <select id="exam_filter" class="border rounded px-2 py-1">
-    <option value="">All exams</option>
-    <% @exams.each do |exam| %>
-      <option value="<%= exam.id %>"><%= exam.name %></option>
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <h1 class="text-2xl font-bold">Dashboard</h1>
+
+    <!-- Exam selector -->
+    <form method="get">
+      <select
+        name="exam_id"
+        onchange="this.form.submit()"
+        class="border rounded-lg px-3 py-2 text-sm"
+      >
+        <% @exams.each do |exam| %>
+          <option value="<%= exam.id %>" <%= "selected" if exam == @primary_exam %>>
+            <%= exam.name %>
+          </option>
+        <% end %>
+      </select>
+    </form>
+  </div>
+
+  <!-- KPI cards -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+    <%= render "kpi_card", label: "Mocks Taken", value: @total_mocks %>
+    <%= render "kpi_card", label: "Avg Score", value: @weighted_average_score %>
+    <%= render "kpi_card", label: "Accuracy", value: "#{@weighted_average_accuracy}%" %>
+    <%= render "kpi_card", label: "Coverage", value: "#{@overall_coverage}%" %>
+  </div>
+
+  <!-- Recent mocks -->
+  <section>
+    <h2 class="text-lg font-semibold mb-2">Recent Mocks</h2>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full border rounded-lg overflow-hidden">
+        <thead class="bg-gray-100 text-sm">
+          <tr>
+            <th class="px-3 py-2 text-left">Date</th>
+            <th class="px-3 py-2 text-left">Score</th>
+            <th class="px-3 py-2 text-left">Accuracy</th>
+            <th class="px-3 py-2"></th>
+          </tr>
+        </thead>
+        <tbody class="text-sm">
+          <% @recent_mocks.each do |mock| %>
+            <tr class="border-t">
+              <td class="px-3 py-2"><%= mock.attempted_on %></td>
+              <td class="px-3 py-2"><%= mock.total_score %></td>
+              <td class="px-3 py-2"><%= mock.accuracy %>%</td>
+              <td class="px-3 py-2 text-right">
+                <%= link_to "View", mock_attempt_path(mock),
+                    class: "text-blue-600 hover:underline" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Weak sections -->
+  <section>
+    <h2 class="text-lg font-semibold mb-2">Weak Sections</h2>
+
+    <% if @weak_sections.any? %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full border rounded-lg overflow-hidden">
+          <thead class="bg-gray-100 text-sm">
+            <tr>
+              <th class="px-3 py-2 text-left">Section</th>
+              <th class="px-3 py-2 text-left">Avg Accuracy</th>
+              <th class="px-3 py-2 text-left">Coverage</th>
+            </tr>
+          </thead>
+          <tbody class="text-sm">
+            <% @weak_sections.each do |ws| %>
+              <tr class="border-t">
+                <td class="px-3 py-2"><%= ws[:section_name] %></td>
+                <td class="px-3 py-2"><%= ws[:avg_accuracy] %>%</td>
+                <td class="px-3 py-2"><%= ws[:avg_coverage] %>%</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <p class="text-sm text-gray-500">No weak sections detected yet.</p>
     <% end %>
-  </select>
+  </section>
+
+  <!-- Skipped sections -->
+  <section>
+    <h2 class="text-lg font-semibold mb-2">Low Coverage Sections</h2>
+
+    <% if @skipped_sections.any? %>
+      <ul class="space-y-2 text-sm">
+        <% @skipped_sections.each do |s| %>
+          <li class="border rounded-lg p-3 flex justify-between">
+            <span><%= s[:section_name] %></span>
+            <span class="text-gray-600"><%= s[:attempt_ratio] %>% coverage</span>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <p class="text-sm text-gray-500">All sections sufficiently attempted.</p>
+    <% end %>
+  </section>
+
 </div>
-
-<!-- Overall Summary -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-  <div class="bg-gray-100 p-4 rounded shadow">
-    <p class="text-gray-500">Total Mocks</p>
-    <p class="text-xl font-bold"><%= @total_mocks %></p>
-  </div>
-  <div class="bg-gray-100 p-4 rounded shadow">
-    <p class="text-gray-500">Average Score</p>
-    <p class="text-xl font-bold"><%= @average_score %></p>
-  </div>
-  <div class="bg-gray-100 p-4 rounded shadow">
-    <p class="text-gray-500">Average Accuracy</p>
-    <p class="text-xl font-bold"><%= @average_accuracy %> %</p>
-  </div>
-</div>
-
-<!-- Recent Mocks Table -->
-<h2 class="text-xl font-semibold mb-2">Recent Mocks</h2>
-<table class="min-w-full bg-white border rounded mb-6">
-  <thead class="bg-gray-200">
-    <tr>
-      <th class="px-4 py-2 text-left">Date</th>
-      <th class="px-4 py-2 text-left">Exam</th>
-      <th class="px-4 py-2 text-left">Score</th>
-      <th class="px-4 py-2 text-left">Accuracy</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @recent_mocks.each do |m| %>
-      <tr>
-        <td class="border px-4 py-2"><%= m[:attempted_on] %></td>
-        <td class="border px-4 py-2"><%= m[:exam_name] %></td>
-        <td class="border px-4 py-2"><%= m[:score] %></td>
-        <td class="border px-4 py-2"><%= m[:accuracy] %> %</td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
-
-<!-- Weak Sections Table -->
-<h2 class="text-xl font-semibold mb-2">Weak Sections</h2>
-<table class="min-w-full bg-white border rounded mb-6">
-  <thead class="bg-gray-200">
-    <tr>
-      <th class="px-4 py-2 text-left">Section</th>
-      <th class="px-4 py-2 text-left">Average Accuracy</th>
-      <th class="px-4 py-2 text-left">Average Coverage</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @weak_sections.each do |ws| %>
-      <tr>
-        <td class="border px-4 py-2"><%= ws[:section_name] %></td>
-        <td class="border px-4 py-2"><%= ws[:avg_accuracy] %> %</td>
-        <td class="border px-4 py-2"><%= ws[:avg_coverage] %> %</td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
-
-<!-- Skipped / Under-Attempted Sections -->
-<h2 class="text-xl font-semibold mb-2">Skipped / Under-Attempted Sections</h2>
-<ul class="list-disc pl-5">
-  <% @skipped_sections.each do |s| %>
-    <li><%= s[:section_name] %> — skipped <%= s[:skipped_count] %> times</li>
-  <% end %>
-</ul>
-
-<!-- LocalStorage Script for Exam Filter -->
-<script>
-  const examSelect = document.getElementById("exam_filter");
-  // Restore last selected
-  if(localStorage.getItem("dashboard_exam_filter")) {
-    examSelect.value = localStorage.getItem("dashboard_exam_filter");
-  }
-
-  examSelect.addEventListener("change", () => {
-    localStorage.setItem("dashboard_exam_filter", examSelect.value);
-    // Optional: reload page to apply filter
-    location.reload();
-  });
-</script>

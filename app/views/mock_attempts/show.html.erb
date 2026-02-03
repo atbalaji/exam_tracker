@@ -67,8 +67,8 @@
 
 <h3>Section-wise Trend</h3>
 
-<% @section_trends.each do |section, points| %>
-  <h4><%= section %></h4>
+<% @section_trends.each do |_section_id, points| %>
+  <h4><%= points[:section_name] %></h4>
   <ul>
     <% points.each do |p| %>
       <li>
@@ -85,8 +85,8 @@
   <ul>
     <% @weak_sections.each do |ws| %>
       <li>
-        <strong><%= ws[:section] %></strong> –
-        <%= number_to_percentage(ws[:average_accuracy], precision: 1) %>
+        <strong><%= ws[:section_name] %></strong> –
+        <%= number_to_percentage(ws[:accuracy], precision: 1) %>
       </li>
     <% end %>
   </ul>

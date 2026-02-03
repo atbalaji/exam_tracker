@@ -26,8 +26,8 @@ class MockAttemptsController < ApplicationController
 
     @section_results_by_section_id = @section_results.index_by(&:section_id)
     @accuracy_trend = current_user.accuracy_trend_for(@mock_attempt.exam)
-    @section_trends = @mock_attempt.exam.section_accuracy_trend
-    @weak_sections = @mock_attempt.exam.weak_sections
+    @section_trends = current_user.section_accuracy_trend_for(@mock_attempt.exam)
+    @weak_sections = current_user.weak_sections_for(@mock_attempt.exam)
   end
 
   def export
