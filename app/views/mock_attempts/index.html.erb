@@ -1,19 +1,66 @@
-<h2>Mock Attempts</h2>
+<div class="flex items-center justify-between my-6 mx-2">
+  <h1 class="text-2xl font-bold">Mock Attempts</h1>
+  <%= link_to "Add Mock", new_mock_attempt_path,
+      class: "bg-blue-600 text-white px-4 py-2 rounded" %>
+</div>
 
-<%= link_to "Add Mock", new_mock_attempt_path %>
-
-<table>
-  <tr>
-    <th>Date</th>
-    <th>Exam</th>
-    <th>Source</th>
-  </tr>
-
+<div class="space-y-4 md:hidden">
   <% @mock_attempts.each do |m| %>
-    <tr>
-      <td><%= m.attempted_on %></td>
-      <td><%= m.exam.name %></td>
-      <td><%= link_to "View", mock_attempt_path(m) %></td>
-    </tr>
+    <div class="border rounded p-4 shadow-sm bg-white">
+      <div class="flex justify-between mb-2">
+        <span class="text-sm text-gray-500"><%= m.attempted_on %></span>
+        <span class="text-sm font-semibold"><%= m.exam.name %></span>
+      </div>
+
+      <div class="grid grid-cols-3 text-center my-3">
+        <div>
+          <p class="text-xs text-gray-500">Score</p>
+          <p class="font-bold"><%= m.total_score %></p>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500">Accuracy</p>
+          <p class="font-bold"><%= m.accuracy %>%</p>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500">Coverage</p>
+          <p class="font-bold"><%= m.coverage %>%</p>
+        </div>
+      </div>
+
+      <%= link_to "View Analysis",
+            mock_attempt_path(m),
+            class: "block text-center text-blue-600 font-medium mt-2" %>
+    </div>
   <% end %>
-</table>
+</div>
+
+<div class="hidden md:block">
+  <table class="min-w-full bg-white border rounded">
+    <thead class="bg-gray-100">
+      <tr>
+        <th class="px-4 py-2 text-left">Date</th>
+        <th class="px-4 py-2 text-left">Exam</th>
+        <th class="px-4 py-2 text-left">Score</th>
+        <th class="px-4 py-2 text-left">Accuracy</th>
+        <th class="px-4 py-2 text-left">Coverage</th>
+        <th class="px-4 py-2"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @mock_attempts.each do |m| %>
+        <tr class="border-t hover:bg-gray-50">
+          <td class="px-4 py-2"><%= m.attempted_on %></td>
+          <td class="px-4 py-2"><%= m.exam.name %></td>
+          <td class="px-4 py-2 font-semibold"><%= m.total_score %></td>
+          <td class="px-4 py-2"><%= m.accuracy %>%</td>
+          <td class="px-4 py-2"><%= m.coverage %>%</td>
+          <td class="px-4 py-2 text-right">
+            <%= link_to "View",
+                  mock_attempt_path(m),
+                  class: "text-blue-600" %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

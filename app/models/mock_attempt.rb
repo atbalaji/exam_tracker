@@ -24,4 +24,19 @@ class MockAttempt < ApplicationRecord
 
     (total_correct.to_f / total_attempted) * 100
   end
+
+  def coverage
+    total_attempted = 0
+    total_questions = 0
+
+    mock_section_results.each do |sr|
+      total_attempted += sr.attempted
+      total_questions += sr.total_questions
+    end
+
+    return 0 if total_questions.zero?
+
+    (total_attempted.to_f / total_questions * 100).round(1)
+  end
+
 end

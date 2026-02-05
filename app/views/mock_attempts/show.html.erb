@@ -1,119 +1,139 @@
-<h2>Mock Details</h2>
+<div class="max-w-6xl mx-auto px-4 py-6 space-y-10">
 
-<p>
-  <strong>Exam:</strong> <%= @mock_attempt.exam.name %><br>
-  <strong>Date:</strong> <%= @mock_attempt.attempted_on %>
-</p>
-
-<h3>Saved Section Results</h3>
-
-<% if @section_results.any? %>
-  <table>
-    <tr>
-      <th>Section</th>
-      <th>Attempted</th>
-      <th>Correct</th>
-      <th>Accuracy</th>
-    </tr>
-
-    <% @section_results.each do |r| %>
-      <tr>
-        <td><%= r.section.name %></td>
-        <td><%= r.attempted %></td>
-        <td><%= r.correct %></td>
-        <td>
-          <%= number_to_percentage(
-                (r.correct.to_f / r.attempted) * 100,
-                precision: 1
-              ) %>
-        </td>
-      </tr>
-    <% end %>
-  </table>
-
-  <h3>Overall Performance</h3>
-
-  <ul>
-    <li>Total Attempted: <%= @mock_attempt.total_attempted %></li>
-    <li>Total Correct: <%= @mock_attempt.total_correct %></li>
-    <li>Accuracy:
-      <%= number_to_percentage(@mock_attempt.accuracy, precision: 1) %>
-    </li>
-  </ul>
-  
-  <h3>Total Score: <%= @mock_attempt.total_score %></h3>
-
-  <% @mock_attempt.mock_section_results.each do |r| %>
-    <p>
-      <%= r.section.name %> :
-      <%= r.score %>
+  <!-- Header -->
+  <div>
+    <h1 class="text-2xl font-bold">Mock Attempt</h1>
+    <p class="text-gray-600">
+      <span class="font-medium"><%= @mock_attempt.exam.name %></span> ·
+      <%= @mock_attempt.attempted_on %>
     </p>
-  <% end %>
+  </div>
 
-<% else %>
-  <p>No section results saved yet.</p>
-<% end %>
+  <!-- Snapshot KPIs -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="bg-gray-100 rounded p-4">
+      <p class="text-sm text-gray-500">Score</p>
+      <p class="text-xl font-semibold"><%= @mock_attempt.total_score %></p>
+    </div>
 
-<h3>Accuracy Trend</h3>
+    <div class="bg-gray-100 rounded p-4">
+      <p class="text-sm text-gray-500">Accuracy</p>
+      <p class="text-xl font-semibold">
+        <%= number_to_percentage(@mock_attempt.accuracy, precision: 1) %>
+      </p>
+    </div>
 
-<ul>
-  <% @accuracy_trend.each do |point| %>
-    <li>
-      <%= point[:date] %> :
-      <%= number_to_percentage(point[:accuracy], precision: 1) %>
-    </li>
-  <% end %>
-</ul>
+    <div class="bg-gray-100 rounded p-4">
+      <p class="text-sm text-gray-500">Coverage</p>
+      <p class="text-xl font-semibold">
+        <%= number_to_percentage(@mock_attempt.coverage, precision: 1) %>
+      </p>
+    </div>
 
-<h3>Section-wise Trend</h3>
+    <div class="bg-gray-100 rounded p-4">
+      <p class="text-sm text-gray-500">Attempted</p>
+      <p class="text-xl font-semibold"><%= @mock_attempt.total_attempted %></p>
+    </div>
+  </div>
 
-<% @section_trends.each do |_section_id, points| %>
-  <h4><%= points[:section_name] %></h4>
-  <ul>
-    <% points.each do |p| %>
-      <li>
-        <%= p[:date] %> :
-        <%= number_to_percentage(p[:accuracy], precision: 1) %>
-      </li>
+  <!-- Section Breakdown -->
+  <div>
+    <h2 class="text-xl font-semibold mb-3">Section Breakdown</h2>
+
+    <% if @section_results.any? %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full border bg-white">
+          <thead class="bg-gray-200">
+            <tr>
+              <th class="px-3 py-2 text-left">Section</th>
+              <th class="px-3 py-2 text-right">Attempted</th>
+              <th class="px-3 py-2 text-right">Correct</th>
+              <th class="px-3 py-2 text-right">Accuracy</th>
+              <th class="px-3 py-2 text-right">Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @section_results.each do |r| %>
+              <% accuracy =
+                   r.attempted.zero? ? nil : (r.correct.to_f / r.attempted * 100) %>
+              <tr class="border-t">
+                <td class="px-3 py-2 font-medium"><%= r.section.name %></td>
+                <td class="px-3 py-2 text-right"><%= r.attempted %></td>
+                <td class="px-3 py-2 text-right"><%= r.correct %></td>
+                <td class="px-3 py-2 text-right">
+                  <%= accuracy ? number_to_percentage(accuracy, precision: 1) : "—" %>
+                </td>
+                <td class="px-3 py-2 text-right"><%= r.score %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <p class="text-gray-500">No section results saved yet.</p>
     <% end %>
-  </ul>
-<% end %>
+  </div>
 
-<h3>Weak Sections (Focus Area)</h3>
+  <!-- Exam Context -->
+  <div class="border-t pt-6 space-y-8">
 
-<% if @weak_sections.any? %>
-  <ul>
-    <% @weak_sections.each do |ws| %>
-      <li>
-        <strong><%= ws[:section_name] %></strong> –
-        <%= number_to_percentage(ws[:accuracy], precision: 1) %>
-      </li>
-    <% end %>
-  </ul>
-<% else %>
-  <p>No weak sections identified yet.</p>
-<% end %>
+    <h2 class="text-xl font-semibold">
+      Exam-level Performance (All Attempts)
+    </h2>
 
-<h3>Section Scores</h3>
+    <!-- Accuracy Trend -->
+    <div>
+      <h3 class="font-semibold mb-2">Accuracy Trend</h3>
+      <ul class="space-y-1 text-sm">
+        <% @accuracy_trend.each do |point| %>
+          <li class="flex justify-between max-w-sm">
+            <span><%= point[:date] %></span>
+            <span><%= number_to_percentage(point[:accuracy], precision: 1) %></span>
+          </li>
+        <% end %>
+      </ul>
+    </div>
 
-<%= form_with url: mock_section_results_path do %>
-  <% @sections.each do |section| %>
-    <fieldset>
-      <legend><%= section.name %></legend>
+    <!-- Section Trends -->
+    <div>
+      <h3 class="font-semibold mb-2">Section-wise Accuracy Trend</h3>
 
-      <%= hidden_field_tag "results[][section_id]", section.id %>
-      <%= hidden_field_tag "results[][mock_attempt_id]", @mock_attempt.id %>
+      <% @section_trends.each do |section_id, points| %>
+        <% section_name = Section.find(section_id).name %>
+        <div class="mb-4">
+          <p class="font-medium"><%= section_name %></p>
+          <ul class="text-sm space-y-1">
+            <% points.each do |p| %>
+              <li class="flex justify-between max-w-sm">
+                <span><%= p[:date] %></span>
+                <span><%= number_to_percentage(p[:accuracy], precision: 1) %></span>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+    </div>
 
-      Total questions:
-      <%= number_field_tag "results[][total_questions]", sr&.total_questions %>
+    <!-- Weak Sections -->
+    <div>
+      <h3 class="font-semibold mb-2">Weak Sections</h3>
 
-      Attempted:
-      <%= number_field_tag "results[][attempted]", @section_results_by_section_id[section.id]&.attempted %>
+      <% if @weak_sections.any? %>
+        <ul class="space-y-1">
+          <% @weak_sections.each do |ws| %>
+            <li class="flex justify-between max-w-sm">
+              <span class="font-medium"><%= ws[:section_name] %></span>
+              <span class="text-red-600">
+                <%= number_to_percentage(ws[:average_accuracy], precision: 1) %>
+              </span>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="text-gray-500">No weak sections identified yet.</p>
+      <% end %>
+    </div>
 
-      Correct:
-      <%= number_field_tag "results[][correct]", @section_results_by_section_id[section.id]&.correct %>
-    </fieldset>
-  <% end %>
+  </div>
 
-  <%= submit_tag "Save Section Results" %>
-<% end %>
+</div>

@@ -6,23 +6,115 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
-    <%= stylesheet_link_tag "application" %>
-    <%# <%= javascript_importmap_tags %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
 
-  <body>
+  <body class="bg-gray-50 text-gray-900 min-h-screen">
+
     <% if current_user %>
-      <nav class="top-nav">
-        <span class="app-name">ExamTracker</span>
-        <%= button_to "Logout", logout_path, method: :delete, class: "logout-btn" %>
+      <nav class="bg-white border-b shadow-sm relative">
+        <div class="max-w-6xl mx-auto px-4 py-3">
+
+          <!-- Desktop Nav -->
+          <div class="hidden md:flex items-center justify-between">
+            <div class="flex items-center gap-6">
+              <span class="text-xl font-semibold tracking-tight">
+                ExamTracker
+              </span>
+
+              <%= link_to "Mock Attempts", mock_attempts_path, class: "text-sm font-medium text-gray-700 hover:text-gray-900" %>
+            </div>
+
+            <div class="flex items-center gap-4">
+              <span class="text-sm text-gray-600">
+                <%= current_user.email %>
+              </span>
+
+              <%= button_to "Logout",
+                    logout_path,
+                    method: :delete,
+                    class: "text-sm bg-red-500 text-white px-3 py-1.5 rounded hover:bg-red-600 transition" %>
+            </div>
+          </div>
+
+          <!-- Mobile Nav -->
+          <div class="flex md:hidden items-center justify-between">
+            <span class="text-lg font-semibold">
+              ExamTracker
+            </span>
+
+            <button
+              id="mobile-menu-btn"
+              class="p-2 rounded hover:bg-gray-100 focus:outline-none"
+              aria-label="Open menu">
+              ☰
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div
+          id="mobile-menu"
+          class="hidden md:hidden absolute top-full left-0 w-full bg-white border-t shadow-lg z-50">
+
+          <div class="px-4 py-3 text-sm text-gray-600 border-b">
+            <%= current_user.email %>
+          </div>
+
+          <div class="flex flex-col divide-y">
+            <%= link_to "Dashboard",
+                  root_path,
+                  class: "px-4 py-3 hover:bg-gray-50" %>
+
+            <%= link_to "Mock Attempts",
+                  mock_attempts_path,
+                  class: "px-4 py-3 hover:bg-gray-50" %>
+
+            <%= button_to "Logout",
+                  logout_path,
+                  method: :delete,
+                  class: "text-left px-4 py-3 text-red-600 hover:bg-red-50" %>
+          </div>
+        </div>
       </nav>
     <% end %>
 
-    <% flash.each do |key, message| %>
-      <div class="flash <%= key %>"><%= message %></div>
+    <% if flash.any? %>
+      <div class="max-w-4xl mx-auto px-4 mt-4 space-y-2">
+        <% flash.each do |key, message| %>
+          <div class="
+            rounded px-4 py-2 text-sm
+            <%= key.to_s == 'notice' ? 'bg-green-100 text-green-800' : '' %>
+            <%= key.to_s == 'alert'  ? 'bg-red-100 text-red-800'     : '' %>
+          ">
+            <%= message %>
+          </div>
+        <% end %>
+      </div>
     <% end %>
 
-    <%= yield %>
+    <main class="max-w-6xl mx-auto px-4 py-6">
+      <%= yield %>
+    </main>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const btn = document.getElementById("mobile-menu-btn");
+        const menu = document.getElementById("mobile-menu");
+
+        if (!btn || !menu) return;
+
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          menu.classList.toggle("hidden");
+        });
+
+        document.addEventListener("click", () => {
+          menu.classList.add("hidden");
+        });
+      });
+    </script>
+
   </body>
 </html>

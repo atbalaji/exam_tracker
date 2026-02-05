@@ -2,7 +2,7 @@ class MockAttemptsController < ApplicationController
   before_action :load_exams, only: [:new, :create]
 
   def index
-    @mock_attempts = current_user.mock_attempts.includes(:exam).order(attempted_on: :desc)
+    @mock_attempts = current_user.mock_attempts.includes(:exam, :mock_section_results).order(attempted_on: :desc)
   end
 
   def new
