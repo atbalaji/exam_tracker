@@ -74,6 +74,85 @@
     <% end %>
   </div>
 
+  <!-- Section Results Entry -->
+  <div class="border-t pt-8 space-y-4">
+    <div class="flex items-center justify-between">
+      <h2 class="text-xl font-semibold">Enter / Update Section Results</h2>
+      <p class="text-sm text-gray-500">
+        Fill section-wise performance for this mock
+      </p>
+    </div>
+
+    <%= form_with url: mock_section_results_path, method: :post, class: "space-y-6" do %>
+
+      <div class="grid gap-4 md:grid-cols-2">
+        <% @sections.each do |section| %>
+          <% sr = @section_results_by_section_id[section.id] %>
+
+          <div class="bg-white border rounded-lg p-4 space-y-3">
+            <div class="font-medium text-gray-800">
+              <%= section.name %>
+            </div>
+
+            <%= hidden_field_tag "results[][section_id]", section.id %>
+            <%= hidden_field_tag "results[][mock_attempt_id]", @mock_attempt.id %>
+
+            <div class="grid grid-cols-3 gap-3">
+              <div>
+                <label class="block text-xs text-gray-500 mb-1">
+                  Total Qs
+                </label>
+                <%= number_field_tag(
+                      "results[][total_questions]",
+                      sr&.total_questions,
+                      min: 0,
+                      class: "w-full border rounded px-2 py-1 text-sm"
+                    ) %>
+              </div>
+
+              <div>
+                <label class="block text-xs text-gray-500 mb-1">
+                  Attempted
+                </label>
+                <%= number_field_tag(
+                      "results[][attempted]",
+                      sr&.attempted,
+                      min: 0,
+                      class: "w-full border rounded px-2 py-1 text-sm"
+                    ) %>
+              </div>
+
+              <div>
+                <label class="block text-xs text-gray-500 mb-1">
+                  Correct
+                </label>
+                <%= number_field_tag(
+                      "results[][correct]",
+                      sr&.correct,
+                      min: 0,
+                      class: "w-full border rounded px-2 py-1 text-sm"
+                    ) %>
+              </div>
+            </div>
+
+            <% if sr.present? %>
+              <p class="text-xs text-gray-400">
+                Last updated score: <span class="font-medium"><%= sr.score %></span>
+              </p>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="flex justify-end">
+        <%= submit_tag "Save Section Results",
+              class: "bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700" %>
+      </div>
+
+    <% end %>
+  </div>
+
+
   <!-- Exam Context -->
   <div class="border-t pt-6 space-y-8">
 
