@@ -83,13 +83,13 @@
       </p>
     </div>
 
-    <%= form_with url: mock_section_results_path, method: :post, class: "space-y-6" do %>
+    <%= form_with url: mock_section_results_path, method: :post, id: "mock-section-form", class: "space-y-6" do %>
 
       <div class="grid gap-4 md:grid-cols-2">
         <% @sections.each do |section| %>
           <% sr = @section_results_by_section_id[section.id] %>
 
-          <div class="bg-white border rounded-lg p-4 space-y-3">
+          <div class="bg-white border rounded-lg p-4 space-y-3 section-row" data-section-id="<%= section.id %>">
             <div class="font-medium text-gray-800">
               <%= section.name %>
             </div>
@@ -106,8 +106,10 @@
                       "results[][total_questions]",
                       sr&.total_questions,
                       min: 0,
+                      required: true,
                       class: "w-full border rounded px-2 py-1 text-sm"
                     ) %>
+                <p class="section-error text-xs text-red-600 hidden"></p>
               </div>
 
               <div>
@@ -118,8 +120,10 @@
                       "results[][attempted]",
                       sr&.attempted,
                       min: 0,
+                      required: true,
                       class: "w-full border rounded px-2 py-1 text-sm"
                     ) %>
+                <p class="section-error text-xs text-red-600 hidden"></p>
               </div>
 
               <div>
@@ -130,8 +134,10 @@
                       "results[][correct]",
                       sr&.correct,
                       min: 0,
+                      required: true,
                       class: "w-full border rounded px-2 py-1 text-sm"
                     ) %>
+                <p class="section-error text-xs text-red-600 hidden"></p>
               </div>
             </div>
 
@@ -216,3 +222,96 @@
   </div>
 
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("mock-section-form");
+    if (!form) return;
+
+    const submitBtn = form.querySelector('input[type="submit"]');
+    const sections = form.querySelectorAll(".section-row");
+
+    function clearSectionError(section) {
+      section.classList.remove("border-red-500");
+      const error = section.querySelector(".section-error");
+      error.textContent = "";
+      error.classList.add("hidden");
+    }
+
+    function showSectionError(section, message) {
+      section.classList.add("border-red-500");
+      const error = section.querySelector(".section-error");
+      error.textContent = message;
+      error.classList.remove("hidden");
+    }
+
+    function parseValue(input) {
+      if (!input.value) return null;
+      return Number(input.value);
+    }
+
+    function validateSection(section) {
+      clearSectionError(section);
+
+      const inputs = section.querySelectorAll("input[type='number']");
+      const [totalInput, attemptedInput, correctInput] = inputs;
+
+      const total = parseValue(totalInput);
+      const attempted = parseValue(attemptedInput);
+      const correct = parseValue(correctInput);
+
+      // Empty section = not valid, but not an error
+      if (total === null && attempted === null && correct === null) {
+        return false;
+      }
+
+      // All required if one is filled
+      if (total === null || attempted === null || correct === null) {
+        showSectionError(section, "Fill all fields for this section");
+        return false;
+      }
+
+      if (attempted > total) {
+        showSectionError(section, "Attempted cannot exceed Total questions");
+        return false;
+      }
+
+      if (correct > attempted) {
+        showSectionError(section, "Correct cannot exceed Attempted");
+        return false;
+      }
+
+      return true;
+    }
+
+    function updateFormState() {
+      let hasAtLeastOneValid = false;
+
+      sections.forEach(section => {
+        const isValid = validateSection(section);
+        if (isValid) hasAtLeastOneValid = true;
+      });
+
+      submitBtn.disabled = !hasAtLeastOneValid;
+      submitBtn.classList.toggle("opacity-50", !hasAtLeastOneValid);
+      submitBtn.classList.toggle("cursor-not-allowed", !hasAtLeastOneValid);
+    }
+
+    sections.forEach(section => {
+      section.querySelectorAll("input").forEach(input => {
+        input.addEventListener("input", updateFormState);
+      });
+    });
+
+    form.addEventListener("submit", (e) => {
+      updateFormState();
+      if (submitBtn.disabled) {
+        e.preventDefault();
+      }
+    });
+
+    // Initial state
+    updateFormState();
+  });
+</script>
+
