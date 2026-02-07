@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get 'registrations/new'
+  get 'registrations/create'
   get 'dashboards/index'
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
@@ -8,6 +10,9 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   root "dashboards#index"
+
+  get "/signup", to: "registrations#new"
+  post "/signup", to: "registrations#create"
 
   get "/login", to: "sessions#new"
   post "/login", to: "sessions#create"
