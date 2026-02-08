@@ -4,6 +4,7 @@
       class: "bg-blue-600 text-white px-4 py-2 rounded" %>
 </div>
 
+<!-- Mobile cards -->
 <div class="space-y-4 md:hidden">
   <% @mock_attempts.each do |m| %>
     <div class="border rounded p-4 shadow-sm bg-white">
@@ -27,9 +28,22 @@
         </div>
       </div>
 
-      <%= link_to "View Analysis",
-            mock_attempt_path(m),
-            class: "block text-center text-blue-600 font-medium mt-2" %>
+      <!-- Actions -->
+      <div class="pt-3 border-t mt-3">
+        <div class="flex items-center justify-between text-sm font-medium">
+          <%= link_to "View", mock_attempt_path(m), class: "text-blue-600 active:underline" %>
+
+          <%= link_to "Edit", edit_mock_attempt_path(m), class: "text-gray-700 active:underline" %>
+          <%= button_to "Delete",
+                mock_attempt_path(m),
+                method: :delete,
+                form: {
+                  onsubmit: "return confirm('Delete this mock attempt? This cannot be undone.')"
+                },
+                class: "text-red-600 text-sm font-medium  active:underline" %>
+        </div>
+
+      </div>
     </div>
   <% end %>
 </div>
@@ -43,7 +57,7 @@
         <th class="px-4 py-2 text-left">Score</th>
         <th class="px-4 py-2 text-left">Accuracy</th>
         <th class="px-4 py-2 text-left">Coverage</th>
-        <th class="px-4 py-2"></th>
+        <th class="px-4 py-2 text-center">Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -54,10 +68,16 @@
           <td class="px-4 py-2 font-semibold"><%= m.total_score %></td>
           <td class="px-4 py-2"><%= m.accuracy %>%</td>
           <td class="px-4 py-2"><%= m.coverage %>%</td>
-          <td class="px-4 py-2 text-right">
-            <%= link_to "View",
-                  mock_attempt_path(m),
-                  class: "text-blue-600" %>
+          <td class="flex gap-2 items-center justify-center mt-3">
+            <%= link_to "View", mock_attempt_path(m), class: "text-blue-600 mr-3 hover:underline" %>
+
+            <%= link_to "Edit", edit_mock_attempt_path(m), class: "text-gray-700 mr-3 hover:underline" %>
+
+            <%= button_to "Delete", mock_attempt_path(m), method: :delete,
+                  form: {
+                    onsubmit: "return confirm('Delete this mock attempt? This cannot be undone.')"
+                  },
+                  class: "text-red-600 hover:underline" %>
           </td>
         </tr>
       <% end %>

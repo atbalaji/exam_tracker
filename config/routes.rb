@@ -20,7 +20,7 @@ Rails.application.routes.draw do
 
   get "/dashboard", to: "dashboard#index"
 
-  resources :mock_attempts, only: [:index, :new, :create, :show] do
+  resources :mock_attempts do
     collection do
       get :export
     end

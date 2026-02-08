@@ -1,32 +1,46 @@
 class MockSectionResultsController < ApplicationController
   def create
-    mock_attempt_id = params[:results].first[:mock_attempt_id]
+    results = params[:results] || []
+    filled_results = results.reject do |r|
+      r[:total_questions].blank? &&
+      r[:attempted].blank? &&
+      r[:correct].blank?
+    end
+
+    if filled_results.empty?
+      redirect_back fallback_location: root_path,
+        alert: "Enter at least one section result"
+      return
+    end
+
+    mock_attempt = current_user.mock_attempts.find(
+      filled_results.first[:mock_attempt_id]
+    )
 
     ActiveRecord::Base.transaction do
-      params[:results].each do |result|
-        next if result[:total_questions].blank? && result[:attempted].blank? && result[:correct].blank?
-
-        mock_section_result = MockSectionResult.find_or_initialize_by(
-          mock_attempt_id: result[:mock_attempt_id],
-          section_id: result[:section_id],
+      filled_results.each do |result|
+        msr = MockSectionResult.find_or_initialize_by(
+          mock_attempt: mock_attempt,
+          section_id: result[:section_id]
         )
 
-        mock_section_result.assign_attributes(
+        msr.assign_attributes(
           total_questions: result[:total_questions],
           attempted: result[:attempted],
           correct: result[:correct]
         )
 
-        unless msr.save
-          raise ActiveRecord::Rollback, mock_section_result.errors.full_messages.join(", ")
-        end
+        msr.save!
       end
     end
 
+    redirect_to mock_attempt_path(mock_attempt),
+      notice: "Section results saved"
 
-    redirect_to mock_attempt_path(mock_attempt_id), notice: "Section results saved"
-
-    rescue => e
-      redirect_to mock_attempt_path(mock_attempt_id), alert: e.message.presence || "Invalid section data"
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to mock_attempt_path(mock_attempt),
+      alert: e.record.errors.full_messages.join(", ")
+  rescue ActiveRecord::RecordNotFound
+    redirect_to root_path, alert: "Unauthorized action"
   end
 end

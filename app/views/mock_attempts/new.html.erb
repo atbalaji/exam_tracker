@@ -1,25 +1,163 @@
-<h2>New Mock Attempt</h2>
+<div class="min-h-screen bg-gray-50 px-4 py-8">
+  <div class="max-w-xl mx-auto bg-white rounded-lg shadow-sm p-6 space-y-6">
 
-<%= form_with model: @mock_attempt do |f| %>
-  <div>
-    <%= f.label :exam_id %>
-    <%= f.collection_select :exam_id, @exams, :id, :name %>
+    <!-- Header -->
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">New Mock Attempt</h1>
+      <p class="text-sm text-gray-600">
+        Log a completed mock to track performance
+      </p>
+    </div>
+
+    <%= form_with model: @mock_attempt, class: "space-y-5", id: "mock-attempt-form" do |f| %>
+
+      <!-- Form-level error (client + server) -->
+      <div id="form-error"
+           class="hidden bg-red-50 border border-red-300 text-red-700 px-4 py-2 rounded text-sm">
+      </div>
+
+      <!-- Exam -->
+      <div>
+        <%= f.label :exam_id, "Exam",
+              class: "block text-sm font-medium text-gray-700 mb-1" %>
+
+        <%= f.collection_select :exam_id, @exams, :id, :name,
+              { prompt: "Select exam" },
+              class: "w-full rounded-md border border-gray-300 px-3 py-2
+                      focus:border-indigo-500 focus:ring-indigo-500" %>
+
+        <p class="field-error text-xs text-red-600 hidden"></p>
+      </div>
+
+      <!-- Date -->
+      <div>
+        <%= f.label :attempted_on, "Attempt Date",
+              class: "block text-sm font-medium text-gray-700 mb-1" %>
+
+        <%= f.date_field :attempted_on,
+              class: "w-full rounded-md border border-gray-300 px-3 py-2
+                      focus:border-indigo-500 focus:ring-indigo-500" %>
+
+        <p class="field-error text-xs text-red-600 hidden"></p>
+      </div>
+
+      <!-- Source -->
+      <div>
+        <%= f.label :source, "Source (optional)",
+              class: "block text-sm font-medium text-gray-700 mb-1" %>
+
+        <%= f.text_field :source,
+              placeholder: "Coaching test / Online mock etc.",
+              class: "w-full rounded-md border border-gray-300 px-3 py-2
+                      focus:border-indigo-500 focus:ring-indigo-500" %>
+      </div>
+
+      <!-- Notes -->
+      <div>
+        <%= f.label :notes, "Notes (optional)",
+              class: "block text-sm font-medium text-gray-700 mb-1" %>
+
+        <%= f.text_area :notes,
+              rows: 3,
+              placeholder: "Any observations, mistakes, or conditions during the test",
+              class: "w-full rounded-md border border-gray-300 px-3 py-2
+                      focus:border-indigo-500 focus:ring-indigo-500" %>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-center justify-between pt-4">
+        <%= link_to "Cancel",
+              mock_attempts_path,
+              class: "text-sm text-gray-600 hover:underline" %>
+
+        <%= f.submit "Create Mock",
+              class: "bg-blue-600 text-white px-6 py-2 rounded-md
+                      hover:bg-blue-700 transition font-medium" %>
+      </div>
+
+    <% end %>
   </div>
+</div>
 
-  <div>
-    <%= f.label :attempted_on %>
-    <%= f.date_field :attempted_on %>
-  </div>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("mock-attempt-form");
+  if (!form) return;
 
-  <div>
-    <%= f.label :source %>
-    <%= f.text_field :source %>
-  </div>
+  const examSelect = form.querySelector("#mock_attempt_exam_id");
+  const dateInput  = form.querySelector("#mock_attempt_attempted_on");
+  const submitBtn  = form.querySelector("input[type='submit']");
+  const formError  = document.getElementById("form-error");
 
-  <div>
-    <%= f.label :notes %>
-    <%= f.text_area :notes %>
-  </div>
+  function showFieldError(input, message) {
+    const error = input.closest("div").querySelector(".field-error");
+    input.classList.add("border-red-500");
+    error.textContent = message;
+    error.classList.remove("hidden");
+  }
 
-  <%= f.submit "Create Mock" %>
+  function clearFieldError(input) {
+    const error = input.closest("div").querySelector(".field-error");
+    input.classList.remove("border-red-500");
+    error.textContent = "";
+    error.classList.add("hidden");
+  }
+
+  function clearFormError() {
+    formError.textContent = "";
+    formError.classList.add("hidden");
+  }
+
+  function validate() {
+    let valid = true;
+    clearFormError();
+
+    if (!examSelect.value) {
+      showFieldError(examSelect, "Please select an exam");
+      valid = false;
+    } else {
+      clearFieldError(examSelect);
+    }
+
+    if (!dateInput.value) {
+      showFieldError(dateInput, "Please select attempt date");
+      valid = false;
+    } else {
+      clearFieldError(dateInput);
+    }
+
+    submitBtn.disabled = !valid;
+    submitBtn.classList.toggle("opacity-50", !valid);
+    submitBtn.classList.toggle("cursor-not-allowed", !valid);
+
+    return valid;
+  }
+
+  examSelect.addEventListener("change", validate);
+  dateInput.addEventListener("change", validate);
+
+  form.addEventListener("submit", (e) => {
+    if (!validate()) {
+      e.preventDefault();
+      formError.textContent =
+        "Please fix the highlighted errors before creating the mock.";
+      formError.classList.remove("hidden");
+    }
+  });
+
+  validate(); // initial state
+});
+</script>
+
+<%# ---- Server-side error hydration ---- %>
+<% if flash[:error] %>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const fe = document.getElementById("form-error");
+      if (fe) {
+        fe.textContent = "<%= j flash[:error] %>";
+        fe.classList.remove("hidden");
+      }
+    });
+  </script>
 <% end %>

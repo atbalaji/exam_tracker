@@ -1,5 +1,6 @@
 class MockAttemptsController < ApplicationController
   before_action :load_exams, only: [:new, :create]
+  before_action :set_mock_attempt, only: [:show, :edit, :update, :destroy]
 
   def index
     @mock_attempts = current_user.mock_attempts.includes(:exam, :mock_section_results).order(attempted_on: :desc)
@@ -15,12 +16,12 @@ class MockAttemptsController < ApplicationController
     if @mock_attempt.save
       redirect_to @mock_attempt
     else
-      render :new
+      @exams = Exam.all
+      render :new, status: :unprocessable_entity
     end
   end
 
   def show
-    @mock_attempt = current_user.mock_attempts.find(params[:id])
     @sections = @mock_attempt.exam.sections
     @section_results = @mock_attempt.mock_section_results.includes(:section)
 
@@ -37,13 +38,42 @@ class MockAttemptsController < ApplicationController
     send_data csv, filename: "mock_attempts_#{Date.today}.csv", type: "text/csv"
   end
 
+  def edit
+  end
+
+  def update
+    if @mock_attempt.update(mock_attempt_update_params)
+      redirect_to @mock_attempt, notice: "Mock attempt updated"
+    else
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
+
+  def destroy
+    @mock_attempt.destroy
+
+    redirect_to mock_attempts_path, notice: "Mock attempt deleted successfully"
+
+  rescue ActiveRecord::RecordNotFound
+    redirect_to  mock_attempts_path, alert: "Mock attempt not found"
+  end
+
   private
 
   def mock_attempt_params
     params.require(:mock_attempt).permit(:exam_id, :attempted_on, :source, :notes)
   end
 
+  def mock_attempt_update_params
+    params.require(:mock_attempt).permit(:attempted_on, :source, :notes)
+  end
+
   def load_exams
     @exams = Exam.all
+  end
+
+  def set_mock_attempt
+    @mock_attempt = current_user.mock_attempts.find(params[:id])
   end
 end

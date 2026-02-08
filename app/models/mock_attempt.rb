@@ -5,7 +5,7 @@ class MockAttempt < ApplicationRecord
 
   belongs_to :user
   belongs_to :exam
-  has_many :mock_section_results
+  has_many :mock_section_results, dependent: :destroy
 
   def total_attempted
     mock_section_results.sum(:attempted)

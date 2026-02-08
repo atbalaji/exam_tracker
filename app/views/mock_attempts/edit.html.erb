@@ -1,0 +1,66 @@
+<div class="min-h-screen bg-gray-50 px-4 py-8">
+  <div class="max-w-xl mx-auto bg-white rounded-lg shadow-sm p-6 space-y-6">
+
+    <!-- Header -->
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Edit Mock Attempt</h1>
+      <p class="text-sm text-gray-600">
+        <span class="font-medium"><%= @mock_attempt.exam.name %></span> ·
+        Exam cannot be changed
+      </p>
+    </div>
+
+    <% if @mock_attempt.errors.any? %>
+      <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <ul class="text-sm list-disc list-inside">
+          <% @mock_attempt.errors.full_messages.each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <%= form_with model: @mock_attempt, class: "space-y-5" do |f| %>
+
+      <!-- Attempt Date -->
+      <div>
+        <%= f.label :attempted_on, "Attempt Date",
+              class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.date_field :attempted_on,
+              class: "w-full rounded-md border border-gray-300 px-3 py-2
+                      focus:border-indigo-500 focus:ring-indigo-500" %>
+      </div>
+
+      <!-- Source -->
+      <div>
+        <%= f.label :source, "Source",
+              class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.text_field :source,
+              class: "w-full rounded-md border border-gray-300 px-3 py-2
+                      focus:border-indigo-500 focus:ring-indigo-500" %>
+      </div>
+
+      <!-- Notes -->
+      <div>
+        <%= f.label :notes, "Notes",
+              class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.text_area :notes,
+              rows: 3,
+              class: "w-full rounded-md border border-gray-300 px-3 py-2
+                      focus:border-indigo-500 focus:ring-indigo-500" %>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-center justify-between pt-4">
+        <%= link_to "Cancel",
+              mock_attempt_path(@mock_attempt),
+              class: "text-sm text-gray-600 hover:underline" %>
+
+        <%= f.submit "Update Mock",
+              class: "bg-blue-600 text-white px-6 py-2 rounded-md
+                      hover:bg-blue-700 transition font-medium" %>
+      </div>
+
+    <% end %>
+  </div>
+</div>
