@@ -7,6 +7,8 @@ class MockAttempt < ApplicationRecord
   belongs_to :exam
   has_many :mock_section_results, dependent: :destroy
 
+  scope :for_exam, ->(exam_id) { where(exam_id: exam_id) }
+
   def total_attempted
     mock_section_results.sum(:attempted)
   end

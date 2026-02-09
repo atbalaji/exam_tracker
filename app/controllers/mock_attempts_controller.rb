@@ -3,7 +3,15 @@ class MockAttemptsController < ApplicationController
   before_action :set_mock_attempt, only: [:show, :edit, :update, :destroy]
 
   def index
-    @mock_attempts = current_user.mock_attempts.includes(:exam, :mock_section_results).order(attempted_on: :desc)
+    @exams = Exam.order(:name)
+    @mock_attempts = current_user.mock_attempts
+
+    if params[:exam_id].present?
+      @mock_attempts = @mock_attempts.for_exam(params[:exam_id])
+    end
+
+    @mock_attempts = @mock_attempts.includes(:exam, :mock_section_results)
+                      .order(attempted_on: :desc)
   end
 
   def new
